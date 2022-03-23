@@ -1,0 +1,39 @@
+[package]
+name = "json-toml-yaml"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "json-toml-yaml-coverter"
+path = "src/main.rs"
+
+
+[profile.release]
+opt-level = 2 # fast and small wasm
+debug = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde_yaml = "0.8.23"
+
+[dependencies.eframe]
+git = "https://github.com/emilk/egui"
+
+[dependencies.syntect]
+version = "4.6.0"
+default-features = false
+features = ["default-fancy"]
+
+[dependencies.serde_json]
+version = "1.0.79"
+features = ["preserve_order"]
+
+[dependencies.toml]
+version = "0.5.8"
+features = ["preserve_order"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
+tracing-wasm = "0.2"
