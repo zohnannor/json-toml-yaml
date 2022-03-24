@@ -20,5 +20,5 @@ pub fn start(canvas_id: &str) -> Result<(), eframe::wasm_bindgen::JsValue> {
 
     tracing_wasm::set_as_global_default();
 
-    eframe::start_web(canvas_id, Box::new(|_cc| Box::new(Converter::new())))
+    eframe::start_web(canvas_id, Box::new(|cc| Box::new(Converter::new(cc))))
 }

@@ -1,12 +1,13 @@
 use std::convert::identity;
 
+use crate::highlighter::highlight;
 use eframe::{
     egui::{self, Id, TextEdit},
     epi,
 };
+use serde::{Deserialize, Serialize};
 
-use crate::highlighter::highlight;
-
+#[derive(Deserialize, Serialize, Default)]
 pub struct Converter {
     json: String,
     toml: String,
@@ -15,18 +16,15 @@ pub struct Converter {
 
 impl Converter {
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        if let Some(storage) = cc.storage {
+            return epi::get_value(storage, epi::APP_KEY).unwrap_or_default();
+        }
         Self {
             json: String::new(),
             toml: String::new(),
             yaml: String::new(),
         }
-    }
-}
-
-impl Default for Converter {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -59,6 +57,10 @@ fn code_input<'a>(code: &'a mut String, lang: &'a str) -> impl egui::Widget + 'a
 }
 
 impl epi::App for Converter {
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        epi::set_value(storage, epi::APP_KEY, self);
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &epi::Frame) {
         let Self { json, toml, yaml } = self;
 

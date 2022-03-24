@@ -12,6 +12,6 @@ fn main() {
     eframe::run_native(
         "JSON to TOML to YAML converter",
         options,
-        Box::new(|_cc| Box::new(Converter::new())),
+        Box::new(|cc| Box::new(Converter::new(cc))),
     );
 }
