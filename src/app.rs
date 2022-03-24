@@ -2,7 +2,9 @@ use std::convert::identity;
 
 use crate::highlighter::highlight;
 use eframe::{
-    egui::{self, Id, TextEdit},
+    egui::{self, Id, RichText, TextEdit},
+    emath::Align2,
+    epaint::Color32,
     epi,
 };
 use serde::{Deserialize, Serialize};
@@ -12,18 +14,22 @@ pub struct Converter {
     json: String,
     toml: String,
     yaml: String,
+    limitations_window_open: bool,
 }
 
 impl Converter {
     #[must_use]
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         if let Some(storage) = cc.storage {
-            return epi::get_value(storage, epi::APP_KEY).unwrap_or_default();
+            let mut slf: Self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default();
+            slf.limitations_window_open = false;
+            return slf;
         }
         Self {
             json: String::new(),
             toml: String::new(),
             yaml: String::new(),
+            limitations_window_open: false,
         }
     }
 }
@@ -61,10 +67,30 @@ impl epi::App for Converter {
         epi::set_value(storage, epi::APP_KEY, self);
     }
 
+    fn persist_egui_memory(&self) -> bool {
+        false
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &epi::Frame) {
-        let Self { json, toml, yaml } = self;
+        let Self {
+            json,
+            toml,
+            yaml,
+            limitations_window_open,
+        } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            if ui
+                .button(RichText::new("ℹ Limitations").color(Color32::YELLOW))
+                .clicked()
+            {
+                *limitations_window_open = true;
+            }
+
+            if *limitations_window_open {
+                limitations_window(ctx, limitations_window_open);
+            }
+
             ui.columns(3, |ui| {
                 ui[0].add(code_input(json, "json"));
                 ui[1].add(code_input(toml, "toml"));
@@ -109,4 +135,29 @@ impl epi::App for Converter {
             }
         });
     }
+}
+
+fn limitations_window(ctx: &egui::Context, limitations_window_open: &mut bool) {
+    egui::Window::new(RichText::new("ℹ Limitations").color(Color32::YELLOW))
+        .collapsible(false)
+        .resizable(false)
+        .default_width(100.0)
+        .anchor(Align2::CENTER_CENTER, (0., 0.))
+        .scroll2([false; 2])
+        .show(ctx, |ui| {
+            ui.horizontal_wrapped(|ui| {
+                ui.label("- You should be careful with JSON: if you put an array value before others, TOML serializer would fail.");
+                ui.label("See");
+                ui.hyperlink_to(
+                    "alexcrichton/toml-rs#336 (comment)",
+                    "https://github.com/alexcrichton/toml-rs/issues/336#issuecomment-1076728961",
+                );
+            });
+            ui.label("- The memory of the app is saved once every 30 seconds on the web.");
+            ui.vertical_centered(|ui| {
+                if ui.button("Ok").clicked() {
+                    *limitations_window_open = false;
+                }
+            });
+        });
 }
