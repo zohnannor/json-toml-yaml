@@ -1,5 +1,5 @@
-var cacheName = 'egui-template-pwa';
-var filesToCache = ['./', './index.html', './json-toml-yaml.js', './json-toml-yaml_bg.wasm'];
+var cacheName = 'json-toml-yaml-pwa';
+var filesToCache = ['./', './index.html', './json_toml_yaml.js', './json_toml_yaml_bg.wasm'];
 
 /* Start the service worker and cache all of the app's content */
 self.addEventListener('install', function (e) {

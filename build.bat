@@ -63,9 +63,8 @@ IF %FAST% == 0 (
   npx wasm-opt ".\docs\%CRATE_NAME_SNAKE_CASE%_bg.wasm" -O2 -g --fast-math -o ".\docs\%CRATE_NAME_SNAKE_CASE%_bg.wasm"
 )
 
-echo Finished: docs/%CRATE_NAME_SNAKE_CASE%.wasm"
+echo Finished: "docs/%CRATE_NAME_SNAKE_CASE%.wasm"
 
-@REM IF %OPEN% == 1 start http://localhost:8080/index.html
 basic-http-server --addr 127.0.0.1:8080 docs/
 
 GOTO end_program
